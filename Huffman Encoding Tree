@@ -1,0 +1,237 @@
+import heapq
+from runtime_metric import runtime_metric
+# imports heap
+from typing import List, TextIO
+
+
+# define a Node class for building the Huffman Encoding Tree
+class Node:
+
+    def __init__(self, freq, char=None, left=None, right=None,):
+        self.freq = freq
+        self.char = char
+        self.left = left
+        self.right = right
+
+
+    def __lt__(self, other):
+
+        #Compares two nodes for the purpose of sorting in a priority queue.  Nodes with lower frequency are "less than" nodes with higher frequency.
+        #If two nodes have the same frequency, the node with the lower alphabetical character is considered "less than" the node with the higher alphabetical character.
+        #If one node has a character and the other does not, the node with the character is considered "less than" the node without the character.
+
+        if self.freq == other.freq:
+            if self.char is not None and other.char is not None:
+                return self.char < other.char
+            elif self.char is not None and other.char is None:
+                return True
+            else:
+                return False
+        else:
+            return self.freq < other.freq
+
+    def __str__(self):
+    # Returns a string representation of the node, showing the frequency and character
+    #  (if the node is a leaf) or just the frequency (if the node is not a leaf).
+        if not self.left and not self.right:  # leaf node
+            return f"'{self.char}':{self.freq}"
+        else:
+            return f"{self.freq}"
+
+
+# read the frequency table from a file
+# build the Huffman Encoding Tree from the frequency table
+def build_huffman_tree(freq_table):
+    # create a priority queue of nodes, sorted by frequency
+    pq = []
+    for char, freq in freq_table:
+        char=char.upper() #make all characters in frequency table upper case
+        node = Node(freq, char)
+        pq.append(node)
+    heapq.heapify(pq)
+    # repeatedly merge the two nodes with the lowest frequency until there is only one node left
+    while len(pq) > 1:
+        left = heapq.heappop(pq)
+        right = heapq.heappop(pq)
+        parent = Node(left.freq + right.freq, None, left, right)
+        heapq.heappush(pq, parent)
+    # return the root node of the Huffman Encoding Tree
+    return pq[0]
+
+
+# traverse the Huffman Encoding Tree and generate the encoding for each character
+def generate_encoding(node, encoding='', encodings=[]):
+    if node:
+        if not node.left and not node.right:  #  it is a leaf node
+            encodings.append((node.char, encoding))
+        generate_encoding(node.left, encoding + '0', encodings)  #if node is left encode 0
+        generate_encoding(node.right, encoding + '1', encodings) #if node is to the right encode 1
+    return encodings
+
+#function to decode the text in 1s and 0s to letters using Huffman tree
+def decode_text(text: str, huffman_tree: Node) -> str:
+    decoded_text = ""
+    node = huffman_tree
+
+    # traverse the Huffman Encoding Tree to find each character in the encoded text
+    for bit in text:
+        if bit == '\n':
+        # when it reaches the end of the line start from new line
+            decoded_text += '\n'
+            continue
+
+        if bit == '0':
+        #if char is 0 then traverse to left node else right node
+            node = node.left
+        else:
+            node = node.right
+
+        # if we have reached a leaf node, add the character to the decoded text and reset the node to the root
+        if not node.left and not node.right:
+            decoded_text += node.char
+            node = huffman_tree
+    return decoded_text
+
+#function converts input of letters into 1s and 0s using Huffman tree
+def encode_text(text: str, freq_table: List[tuple[str, int]]) -> str:
+    encodings = generate_encoding(build_huffman_tree(freq_table))
+    #calls generate_encodings function to see encoding for every character
+
+    encoded_text = ""
+    for char in text.upper(): #converts all characters to upper case
+        for encoding in encodings:
+                if char == '\n':
+                    encoded_text += '\n' #when it reaches end of line it goes to next line in output
+                    break
+                elif encoding[0] == char:
+                    encoded_text += encoding[1]
+                    break
+    return encoded_text
+
+
+def preorder_traversal(node):
+    # print the preorder traversal of the Huffman Encoding Tree
+    if node is None:
+
+        return
+    if node.left is not None and node.right is not None:
+     print(f"  {node.freq}")
+    else:
+        print(f"{node.char}:{node.freq}")
+    preorder_traversal(node.left)
+    preorder_traversal(node.right)
+
+
+
+
+@runtime_metric
+def process_files(input_files: List[tuple[TextIO, bool]], output_files: List[TextIO]) -> None:
+    """
+    Reads from multiple input files and writes to multiple output files.
+    :param input_files: A list of tuples, each containing an opened text file set to read mode and a boolean flag
+        indicating whether the file contains a frequency table (True) or encoded text (False).
+    """
+    freq_table = []
+
+
+    for input_file, is_freq_table in input_files:
+        if is_freq_table:
+            # read frequency table from input file
+            for line in input_file:
+                char, freq = line.strip().split(' - ')
+                freq_table.append((char, int(freq)))
+            # build Huffman tree from frequency table
+            huffman_tree = build_huffman_tree(freq_table)
+            encodings = generate_encoding(huffman_tree)
+            # print the preorder traversal of the Huffman Encoding Tree
+            pre=preorder_traversal(huffman_tree)
+            print(pre)
+
+            #generate the codes for the huffman tree leaves
+            for encoding in encodings:
+                char, bits = encoding
+                for output_file in output_files:
+                    output_file.write(f" {char}: {bits}\n\n")
+                    
+
+
+
+
+        else:
+
+                    # read the input file
+                    text = input_file.read()
+                    text1=text.strip()
+
+
+                    for line in text1 :
+                        #checks character in input file whether it is a letter or a number
+                         if line.isalpha(): #if the line is a letter
+                          enctext = encode_text(text1, freq_table) #calls the encode text function and write the encoded text to output file
+                          output_file.write(f"The encoded text using the above Huffman tree :  \ninput:-\n{text1}\noutput:-\n{enctext}\n")
+                          output_file.write("\n")
+                          break
+
+                         else:
+                             #if the line is numbers
+                             # decode the digits using the Huffman tree  by calling the decode_text method
+                             decoded_text = decode_text(text1, huffman_tree)
+
+                             # write the output to output file
+
+                             output_file.write(f"The decoded text using the above Huffman tree :  \ninput:-\n{text1}\noutput:-\n{decoded_text}\n")
+                             break
+# main.py
+
+import sys
+from typing import List, Tuple, TextIO
+from lab3 import process_files
+
+# define a function to open a list of files
+def open_files(file_paths: List[str], mode: str) -> List[TextIO]:
+    return [open(file_path, mode) for file_path in file_paths]
+
+# define a function to close a list of files
+def close_files(files: List[TextIO]) -> None:
+    for file in files:
+        file.close()
+
+# define the main function
+def main(input_file_paths: List[str], output_file_paths: List[str]) -> None:
+    # open input and output files
+    input_files = open_files(input_file_paths, 'r')
+    output_files = open_files(output_file_paths, 'w')
+
+    # process files
+    process_files([(input_files[i], i == 0) for i in range(len(input_files))], output_files)
+
+    # close input and output files
+    close_files(output_files)
+    close_files(input_files)
+
+if __name__ == '__main__':
+    # get input and output file paths from command line arguments
+    input_file_paths = sys.argv[1:4]
+    output_file_paths = [sys.argv[4]]
+
+    # run the program
+    main(input_file_paths, output_file_paths)
+import time
+
+def runtime_metric(func): #decorator take argument func
+    def measurement(*args, **kwargs):
+        #check start time
+        start_time = time.perf_counter_ns()
+        result = func(*args, **kwargs)
+        #check end time
+        end_time = time.perf_counter_ns()
+        #subtract start time from end time to get time taken to execute
+        print(f"Function {func.__name__} took {end_time - start_time} nanoseconds to execute.")
+        return result
+    return measurement
+
+
+
+
+
+
