@@ -1,115 +1,123 @@
-# Huffman Encoding Tree 
+# Quicksort and Merge sort 
 -Anusha Jain
-The program implements Huffman Encoding, a lossless data compression algorithm. The implementation focuses on building a Huffman Encoding Tree from a frequency table. It includes a function that generates the encoding for each character and a function that decodes encoded text to alphabets.
+The programs compare the performance of two sorting algorithms: Quicksort and Natural Merge Sort. I implemented four versions of Quicksort with different pivot selection methods and stopping cases, and also implemented Natural Merge Sort using a linked implementation. 
 This document is written in [Markdown](https://dillinger.io/)
 run with python 3.10
 
+### Project Layout
 
-###  build_huffman_tree() function 
-* takes a frequency table as input  
-* creates a priority queue of nodes, sorted by frequency
-* repeatedly merges the two nodes with the lowest frequency until there is only one node left
-* root node of the Huffman Encoding Tree is returned 
+* [AnushaJLab4](.): The parent or "root" folder containing all of these files. 
+    * [README.md](README.md): explains the project
+    * AnushaJANALYSIS: Analysis of the project pdf file
+* [`runtime_metric`](lab4filesAnushaJ/runtime)
+     This file contains program code to check how long program takes to execute in seconds.
+* [`quicksort1.py`](lab4filesAnushaJ/lab4/quicksort1.py)
+    This program uses quicksort -> Selects the first item of the partition as the pivot. Treats partitions of size one and two as stopping cases.
+* [`quicksort2.py`](lab4filesAnushaJ/lab4/quicksort2.py)
+    This program uses quicksort -> Same pivot selection. For a partition of size 100 or less, uses an insertion sort to finish.
+* [`quicksort3.py`](lab4filesAnushaJ/lab4/quicksort3.py)
+    This program uses quicksort -> Same pivot selection. For a partition of size 50 or less, uses an insertion sort to finish.
+* [`quicksort4.py`](lab4filesAnushaJ/lab4/quicksort4.py)
+    This program uses quicksort -> Selects the median-of-three as the pivot. Treats partitions of size one and two as stopping cases
+* [`merge.py`](lab4filesAnushaJ/lab4/merge4.py)
+    This program uses natural merge sort  using a linked implementation.
 
+* [`main.py`](lab4filesAnushaJ/main.py) 
+        This file is the entrypoint to the program when ran as a program. 
 
-### generate_encoding() function
- * Takes the root node of the Huffman Encoding Tree as input 
- * Traverses the tree to generate the Huffman encoding for each character in the tree
- * Assigns a "0" to each left edge and a "1" to each right edge 
- * At leaf node, it adds the character and its corresponding encoding to a list of encodings.
- * Returns a list of tuples, which is the Huffman encoding
+###  quicksort1 program
+* takes an array arr as input, along with optional parameters for comparisons and exchanges (initialized to 0)
+* chooses the first element as pivot
+* sorts the array
+* returns the sorted array, comparisons exchanges
+* reads input file and writes to output file
+
+###  quicksort2 program
+* takes an array arr as input, along with optional parameters for comparisons and exchanges (initialized to 0)
+* chooses the first element as pivot
+* sorts the array
+* when the file size reaches less than 100 , performs insertion sort on the remaining elements
+* returns the sorted array, comparisons exchanges
+* reads input file and writes to output file
  
-### decode_text function
-* takes a binary string 
-* uses the same Huffman tree 
-* Traverses down tree and finds character
-*  decodes the binary string back into the original text
-* Returns decoded text
+###  quicksort3 program
+* takes an array arr as input, along with optional parameters for comparisons and exchanges (initialized to 0)
+* chooses the first element as pivot
+* sorts the array
+* when the file size reaches less than 50 , performs insertion sort on the remaining elements
+* returns the sorted array, comparisons exchanges
+*  reads input file and writes to output file
 
-### encode_text function
-* Takes a string of text as input
-* Calls the build_huffman_tree function to construct a Huffman tree using 
-* calls the generate_encoding function to generate encodings for each character in the Huffman tree.
-* initializes an empty string called encoded_text.
-* It loops through each character in the input text, converting each character to uppercase
-* For each character, it checks whether it is a newline character (\n)
-* If it is not a newline character, it searches for the encoding for that character in the encodings. 
-* Appends the corresponding code to the encoded_text string. 
-* Returns encoded text
+###  quicksort4 program
+* takes an array arr as input, along with optional parameters for comparisons and exchanges (initialized to 0)
+* chooses the median of the first middle and last element as pivot
+* sorts the array
+* when the file size reaches less than 100 , performs insertion sort on the remaining elements
+* returns the sorted array, comparisons exchanges
+* reads input file and writes to output file
 
-### preorder_traversal function
-* prints preorder tree to the output console
-* Checks if node is leaf not or not and accordingly prints the tree
+### merge program
+* finds the starting nodes of sorted sublists in the linked list
+* repeatedly merges adjacent sublists until only one sorted list remains. It uses the merge function to merge two sorted sublists
+* The comparisons and swaps are counted during the merging process.
+* returns the sorted array, comparisons exchanges
+* reads input file and writes to output file
 
-### Process_files function
-* reads frequency table, builds Huffman tree and generates encodings
-* writes to output file
-* Checks if input file contents are number or letters, proceeds to call function to decode or encode them respectively.
-* Writes to output file
+### Files 
+input naming scheme orderofdata+size of file
+* asc50: input file I created that has sorted values 
+* ran50:input file I created that has randomly sorted values 
+* rev50: input file I created that has decreasing sorted values
+* dup1k: input file containing randomly sorted data with duplicates
 
-### Files
-* ClearText.txt : Given required input file containing alphabets 
-* FreqTable.txt: Given required input file containing the frequency table
-* Encoded.txt: Given required input file containing digits
-* cleartext_ex1: Student generated test input containing alphabets and encoded using FreqTable.txt
-* cleartext_ex2: Student generated test input containing alphabets and encoded using FreqTable_ex2.txt
-* encoded_ex1:  Student generated test input containing digits and decoded using FreqTable.txt
-* encoded_ex2
-* FreqTable_ex2:  Student generated test input containing alphabets and decoded using FreqTable_ex2.txt
-* Output_FreqTable_ClearText_Encoded: Output file for the input of ClearText.txt, FreqTable.txt and Encoded.txt
-* Output_FreqTable_cleartextex1_encodedex1: Output file for FreqTable.txt, cleartext_ex1.txt and encoded_ex1.txt
-* Output_FreqTable_ex2_cleartextex2_encodedex2: Output file for FreqTable_ex2.txt, cleartext_ex2.txt and encoded_ex2.txt
+output file name scheme orderofdata+sizeof file_sortingalgorithmused
+* asc50out_merge: output file
+* asc50out_quicksort1: output file
+* asc50out_quicksort2: output file
+* asc50out_quicksort3: output file
+* asc50out_quicksort4: output file
+* ran50out_merge: output file
+* ran50out_quicksort1: output file
+* ran50out_quicksort2: output file
+* ran50out_quicksort3: output file
+* ran50out_quicksort4: output file
+* rev50out_merge: output file
+* rev50out_quicksort1: output file
+* rev50out_quicksort2: output file
+* rev50out_quicksort3: output file
+* rev50out_quicksort4: output file
+* ascbig: output file that has output for ascending order input for all sorting algorithms when input file size is 1000,2000,5000 and 10000
+*  ranbig: output file that has output for randomly sorted input for  all sorting algorithms when input file size is 1000,2000,5000 and 10000
+*  revbig: output file that has output for descending order data for all sorting algorithms when input file size is 1000,2000,5000 and 10000
+*  dup1Kout: output file that has output comparisons and exchanges for dup1k input
+
 
 ### Running this project 
 1. Download and install Python on your computer
 2. Navigate to [this](.) directory (containing the README.md)
 3. In command line open command line in the same directory as the saved python files(this project) using `cd directorypath`
-4. since the file takes three input files and writes to one output file in the command line be sure to input the frequency file as the first input file to obtain output
-5. Run the program (with real inputs): `python  main.py <some_input_file> <some_input_file> <some_input_file> <some_output_file>`
-6. input files and output files are in the resources folder of the zip file in this project
+4. Run the program (with real inputs): `python  main.py program_name <some_input_file> <some_output_file>` ex python main.py quicksort1 asc50.dat asc50out_quicksort1.txt
+5. input files and output files are in the resources folder of the zip file in this project
 
 ### Usage
-This program reads Frequency table from the input file and proceeds to build Huffman tree. Encodings are generated for all leaf node characters which are used to decode and encode input from two other files.
+This program sorts the input files with different sorting algorithms 
 
 ##### Sample input and output text 
-Sample input:-
+Sample input(for quicksort1):-
 ``` 
-character   Frequency
-    a            5
-    b           9
-    c           12
-    d           13
-    e           16
-    f           45
-    
-   decode: 1001011101
-   encode: abd
+[1,2,5,4,3]
 ```
-Sample output :-
+Sample output (for quicksort1) :-
 ```
-f: 0
-c: 100
-d: 101
-a: 1100
-b: 1101
-e: 111
-
-cdb
-11001101101
+[1, 2, 3, 4, 5]
+comparisons: 10
+exchanges: 3
 ```
+similarly the other programs will take input and give output
 
-### Project Layout
 
-* [AnushaJLab3](.): The parent or "root" folder containing all of these files. 
-    * [README.md](README.md): explains the project
-    *AnushaJANALYSIS: Analysis of the project pdf file
-     * [`runtime_metric`](lab3filesAnushaJ/runtime)
-     This file contains program code to check how long program takes to execute in seconds.
-     * [`lab3.py`](lab3filesAnushaJ/lab3.py)
-     This file contains the program utilizing stack.
-      * [`main.py`](lab3filesAnushaJ/main.py) 
-        This file is the entrypoint to the program when ran as a program. 
       
+
 
 
 
